@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAYVAULT - Dashboard Pengguna</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --primary:#2563eb; --primary-dark:#1d4ed8; --primary-light:#dbeafe;
+  --dark:#1e293b; --gray:#64748b; --gray-light:#e2e8f0; --gray-lighter:#f1f5f9;
+  --white:#fff; --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
+  --radius:12px; --shadow:0 1px 3px rgba(15,23,42,.08);
+  --shadow-lg:0 10px 30px rgba(15,23,42,.15);
+  --transition:all .2s ease;
+  --sidebar-width:280px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-lighter);color:var(--dark);-webkit-font-smoothing:antialiased}
+.hidden{display:none!important}
+button{font-family:inherit;cursor:pointer}
+a{text-decoration:none}
+
+/* ===== LOGIN ===== */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%)}
+.login-card{width:100%;max-width:420px;background:#fff;border-radius:20px;padding:2.5rem 2rem;box-shadow:0 25px 60px rgba(0,0,0,.35);animation:rise .4s ease}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{width:64px;height:64px;border-radius:18px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 1rem}
+.login-card h1{text-align:center;font-size:1.35rem;letter-spacing:1.5px}
+.login-sub{text-align:center;color:var(--gray);font-size:.9rem;margin-bottom:1.75rem}
+.login-card .form-group{margin-bottom:1rem}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:.85rem;font-weight:600;margin-bottom:.4rem}
+.input-with-icon{position:relative;display:flex;align-items:center}
+.input-with-icon>i{position:absolute;left:.95rem;color:var(--gray);font-size:.9rem;pointer-events:none}
+.input-with-icon input{padding-left:2.6rem;padding-right:2.6rem}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:.85rem 1rem;border:1.5px solid var(--gray-light);border-radius:10px;font-size:.95rem;color:var(--dark);background:#fff;transition:var(--transition);outline:none;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+.form-group textarea{resize:vertical;min-height:70px}
+.toggle-pass{position:absolute;right:.4rem;background:none;border:none;color:var(--gray);padding:.5rem;border-radius:8px}
+.toggle-pass:hover{color:var(--primary);background:var(--gray-lighter)}
+.login-error{display:none;align-items:center;gap:.5rem;background:rgba(239,68,68,.1);color:var(--danger);font-size:.85rem;font-weight:600;padding:.7rem .9rem;border-radius:10px;margin-bottom:1rem}
+.login-error.show{display:flex}
+.login-hint{text-align:center;font-size:.78rem;color:var(--gray);margin-top:1.25rem;line-height:1.5}
+.login-hint i{color:var(--primary)}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.8rem 1.2rem;border-radius:10px;border:none;font-weight:600;font-size:.9rem;transition:var(--transition);white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-secondary{background:var(--gray-lighter);color:var(--dark)}
+.btn-secondary:hover{background:var(--gray-light)}
+.btn-danger{background:rgba(239,68,68,.12);color:var(--danger)}
+.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn-block{width:100%}
+.btn.loading{opacity:.7;pointer-events:none}
+.btn-action{display:inline-flex;align-items:center;gap:.45rem;padding:.6rem .9rem;background:#fff;border:1.5px solid var(--gray-light);border-radius:10px;font-size:.85rem;font-weight:600;color:var(--dark);transition:var(--transition)}
+.btn-action:hover{border-color:var(--primary);color:var(--primary)}
+.btn-icon{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:none;background:var(--gray-lighter);color:var(--gray);font-size:.85rem;transition:var(--transition)}
+.btn-icon:hover{background:var(--primary-light);color:var(--primary)}
+.btn-setting{width:34px;height:34px;border-radius:8px;border:none;background:var(--gray-lighter);color:var(--gray);transition:var(--transition)}
+.btn-setting:hover{background:var(--primary-light);color:var(--primary)}
+
+/* BACK BUTTON */
+.btn-back{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.5rem .85rem;background:#fff;border:1.5px solid var(--gray-light);border-radius:10px;font-size:.82rem;font-weight:600;color:var(--dark);transition:var(--transition);margin-right:.75rem;flex-shrink:0}
+.btn-back:hover{border-color:var(--primary);color:var(--primary);transform:translateX(-2px)}
+.btn-back i{font-size:.8rem}
+
+/* ===== LAYOUT ===== */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--dark);color:#cbd5e1;display:flex;flex-direction:column;z-index:200;transition:transform .3s ease}
+.sidebar-header{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo{display:flex;align-items:center;gap:.6rem;font-size:1.1rem;font-weight:700;letter-spacing:1.5px;color:#fff;margin-bottom:1.25rem}
+.logo i{color:#60a5fa;font-size:1.4rem}
+.user-info{display:flex;align-items:center;gap:.75rem}
+.user-avatar{width:42px;height:42px;border-radius:50%;background:rgba(96,165,250,.2);color:#93c5fd;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.user-details h4{font-size:.9rem;color:#fff}
+.user-details .user-id{font-size:.72rem;color:#94a3b8}
+.sidebar-menu{flex:1;overflow-y:auto;padding:1rem 0}
+.menu-item{display:flex;align-items:center;gap:.85rem;padding:.8rem 1.25rem;color:#cbd5e1;font-size:.92rem;border-left:3px solid transparent;transition:var(--transition)}
+.menu-item i{width:20px;text-align:center;font-size:.95rem}
+.menu-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.menu-item.active{background:rgba(37,99,235,.25);border-left-color:#60a5fa;color:#fff;font-weight:600}
+.sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.08)}
+.connection-status{margin-bottom:.85rem}
+.status-indicator{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:#94a3b8}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--success)}
+.status-dot.offline{background:var(--warning)}
+.last-sync{font-size:.72rem;color:#64748b;margin-top:.3rem}
+.btn-logout{width:100%;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem;background:rgba(239,68,68,.15);color:#fca5a5;border:none;border-radius:10px;font-size:.88rem;font-weight:600;transition:var(--transition)}
+.btn-logout:hover{background:rgba(239,68,68,.3);color:#fff}
+.main-content{margin-left:var(--sidebar-width);padding:1.5rem;min-height:100vh}
+.mobile-header{display:none}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:150}
+
+/* ===== PAGES ===== */
+.page{display:none}
+.page.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.page-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.page-header-left{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem}
+.page-title h2,.page-header h2{font-size:1.4rem}
+.page-subtitle{color:var(--gray);font-size:.88rem;margin-top:.2rem}
+.page-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.section-title{font-size:1rem;font-weight:700;margin-bottom:1rem}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.view-all{color:var(--primary);font-size:.82rem;font-weight:600}
+
+/* ===== DASHBOARD ===== */
+.balance-card{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:16px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow-lg)}
+.balance-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.balance-header h3{font-size:.9rem;font-weight:500;opacity:.9}
+.balance-actions{display:flex;gap:.4rem}
+.balance-actions .btn-icon{background:rgba(255,255,255,.15);color:#fff}
+.balance-actions .btn-icon:hover{background:rgba(255,255,255,.28)}
+.balance-amount{font-size:2rem;font-weight:700;letter-spacing:.5px;margin-bottom:1.1rem;transition:var(--transition)}
+.balance-info{display:flex;flex-wrap:wrap;gap:1.25rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.18)}
+.info-item{display:flex;flex-direction:column;gap:.2rem}
+.info-label{font-size:.72rem;opacity:.8}
+.info-value{font-size:.82rem;font-weight:600}
+.status-secure{color:#86efac}
+.emergency-card{display:flex;align-items:center;gap:1rem;background:#fff;border-radius:var(--radius);padding:1rem 1.25rem;box-shadow:var(--shadow);margin-bottom:1.5rem;border-left:4px solid var(--warning)}
+.emergency-icon{width:44px;height:44px;border-radius:12px;background:rgba(245,158,11,.15);color:var(--warning);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.emergency-content{flex:1}
+.emergency-content h4{font-size:.92rem;margin-bottom:.15rem}
+.emergency-content p{font-size:.78rem;color:var(--gray)}
+.switch{position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:var(--gray-light);border-radius:26px;cursor:pointer;transition:var(--transition)}
+.slider::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:var(--transition);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked+.slider{background:var(--primary)}
+.switch input:checked+.slider::before{transform:translateX(20px)}
+.quick-actions-section{margin-bottom:1.5rem}
+.actions-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.75rem}
+.action-card{background:#fff;border-radius:var(--radius);padding:1rem .5rem;display:flex;flex-direction:column;align-items:center;gap:.6rem;box-shadow:var(--shadow);cursor:pointer;transition:var(--transition);text-align:center}
+.action-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.action-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.action-icon.pay{background:rgba(37,99,235,.12);color:var(--primary)}
+.action-icon.receive{background:rgba(16,185,129,.12);color:var(--success)}
+.action-icon.transfer{background:rgba(139,92,246,.12);color:#8b5cf6}
+.action-icon.topup{background:rgba(245,158,11,.12);color:var(--warning)}
+.action-icon.history{background:rgba(100,116,139,.12);color:var(--gray)}
+.action-icon.contacts{background:rgba(236,72,153,.12);color:#ec4899}
+.action-label{font-size:.78rem;font-weight:600;color:var(--dark)}
+.recent-transactions,.devices-section{background:#fff;border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1.25rem}
+.transactions-list{display:flex;flex-direction:column}
+.transaction-item{display:flex;align-items:center;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--gray-lighter);cursor:pointer;transition:var(--transition);border-radius:8px}
+.transaction-item:hover{background:var(--gray-lighter);padding-left:.5rem;padding-right:.5rem}
+.transaction-item:last-child{border-bottom:none}
+.transaction-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.transaction-icon.out{background:rgba(239,68,68,.12);color:var(--danger)}
+.transaction-icon.in{background:rgba(16,185,129,.12);color:var(--success)}
+.transaction-details{flex:1;min-width:0}
+.transaction-title{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.transaction-date{font-size:.78rem;color:var(--gray)}
+.transaction-amount{font-weight:700;font-size:.92rem}
+.transaction-amount.out{color:var(--danger)}
+.transaction-amount.in{color:var(--success)}
+.empty-state{padding:2.5rem 1rem;text-align:center;color:var(--gray)}
+.empty-state i{font-size:3.5rem;margin-bottom:.75rem;color:var(--gray-light)}
+.empty-state h4{margin-bottom:.35rem;color:var(--dark);font-weight:600}
+.empty-state p{font-size:.85rem}
+.device-item{display:flex;align-items:center;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--gray-lighter)}
+.device-item:last-child{border-bottom:none}
+.device-icon{width:44px;height:44px;border-radius:12px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1rem}
+.device-info h4{font-size:.9rem}
+.device-info p{font-size:.78rem;color:var(--gray)}
+.device-status{margin-left:auto;display:flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:600;color:var(--success)}
+.device-status i{font-size:.5rem}
+
+/* ===== PAYMENTS ===== */
+.payment-tabs-container{background:#fff;border-radius:var(--radius);padding:.5rem;box-shadow:var(--shadow);margin-bottom:1.25rem}
+.payment-methods-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+.payment-tab{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:.8rem .5rem;border:none;background:transparent;border-radius:10px;font-size:.8rem;font-weight:600;color:var(--gray);transition:var(--transition)}
+.payment-tab i{font-size:1.15rem}
+.payment-tab:hover{background:var(--gray-lighter)}
+.payment-tab.active{background:var(--primary-light);color:var(--primary)}
+.payment-content{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.payment-method-content{display:none}
+.payment-method-content.active{display:block}
+.payment-method-content,.payment-form-container{background:#fff;border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)}
+.payment-method-content h3,.payment-form h3{font-size:1rem;margin-bottom:1rem}
+.search-box{position:relative;margin-bottom:1rem}
+.search-box i{position:absolute;left:.95rem;top:50%;transform:translateY(-50%);color:var(--gray);font-size:.85rem}
+.search-box input{width:100%;padding:.75rem 1rem .75rem 2.5rem;border:1.5px solid var(--gray-light);border-radius:10px;font-size:.88rem;outline:none;transition:var(--transition);font-family:inherit}
+.search-box input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+.qr-container{background:var(--gray-lighter);border-radius:var(--radius);padding:2rem;display:flex;justify-content:center;margin-bottom:1rem}
+.qr-placeholder{text-align:center;color:var(--gray)}
+.qr-placeholder i{font-size:3.5rem;color:var(--gray-light);margin-bottom:.5rem}
+.qr-placeholder p{font-size:.82rem}
+.btn-scan{width:100%}
+.currency{position:absolute;right:1rem;font-size:.8rem;font-weight:700;color:var(--gray)}
+.btn-pay{width:100%;margin-top:.5rem}
+
+/* ===== TRANSACTIONS ===== */
+.filter-options{display:flex;gap:.6rem;flex-wrap:wrap}
+.filter-select{padding:.65rem .9rem;border:1.5px solid var(--gray-light);border-radius:10px;font-size:.85rem;font-family:inherit;background:#fff;outline:none}
+.filter-select:focus{border-color:var(--primary)}
+.transactions-container{background:#fff;border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow)}
+.transaction-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.25rem}
+.transaction-summary .summary-item{background:var(--gray-lighter);border-radius:10px;padding:.9rem 1rem;display:flex;flex-direction:column;gap:.25rem}
+.summary-label{font-size:.75rem;color:var(--gray)}
+.summary-value{font-size:1.15rem;font-weight:700}
+.summary-value.expense{color:var(--danger)}
+.summary-value.income{color:var(--success)}
+
+/* ===== CONTACTS / MERCHANTS ===== */
+.contact-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.contact-card,.merchant-card{display:flex;align-items:center;gap:1rem;background:#fff;border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow);margin-bottom:.75rem;transition:var(--transition);cursor:pointer}
+.merchant-card:hover,.contact-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.contact-avatar{width:46px;height:46px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0}
+.contact-info,.merchant-info{flex:1;min-width:0}
+.contact-info h4,.merchant-info h4{font-size:.92rem}
+.contact-info p,.merchant-info p{font-size:.78rem;color:var(--gray)}
+.merchant-logo{width:52px;height:52px;border-radius:14px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.merchant-rating{color:var(--warning);font-size:.82rem;font-weight:700}
+
+/* ===== QR ===== */
+.qr-code-container{background:#fff;border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);max-width:520px;margin:0 auto}
+.qr-code-display{display:flex;justify-content:center;position:relative;background:#fff;padding:1rem;border-radius:var(--radius);margin-bottom:1.25rem;border:1px solid var(--gray-lighter)}
+.qr-grid{display:grid;grid-template-columns:repeat(21,1fr);gap:2px;width:240px;aspect-ratio:1}
+.qr-grid span{background:#fff;border-radius:1px}
+.qr-logo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.qr-info{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.25rem}
+.qr-info-item{text-align:center;background:var(--gray-lighter);border-radius:10px;padding:.75rem .5rem}
+.qr-info-item label{display:block;font-size:.72rem;color:var(--gray);margin-bottom:.25rem}
+.qr-info-value{font-size:.85rem;font-weight:700}
+.qr-instructions{background:var(--gray-lighter);border-radius:10px;padding:1rem}
+.qr-instructions h4{font-size:.85rem;margin-bottom:.5rem}
+.qr-instructions ol{padding-left:1.1rem;font-size:.8rem;color:var(--gray);line-height:1.7}
+
+/* ===== SETTINGS ===== */
+.settings-section{background:#fff;border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1.25rem}
+.settings-section h3{font-size:.95rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.settings-section h3 i{color:var(--primary)}
+.setting-item{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 0;border-bottom:1px solid var(--gray-lighter)}
+.setting-item:last-child{border-bottom:none}
+.setting-info h4{font-size:.9rem;margin-bottom:.15rem}
+.setting-info p{font-size:.78rem;color:var(--gray)}
+.select-input{padding:.55rem .75rem;border:1.5px solid var(--gray-light);border-radius:8px;font-family:inherit;font-size:.85rem;outline:none;background:#fff}
+.settings-actions{display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem}
+
+/* ===== MODAL ===== */
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;padding:1rem;z-index:2000}
+.modal.open{display:flex}
+.modal-content{background:#fff;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideDown .3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-light);position:sticky;top:0;background:#fff;z-index:1}
+.modal-header h3{font-size:1rem}
+.modal-close{width:34px;height:34px;border-radius:8px;border:none;background:transparent;color:var(--gray);font-size:1.05rem;transition:var(--transition)}
+.modal-close:hover{background:var(--gray-lighter);color:var(--dark)}
+.modal-body{padding:1.5rem}
+.detail-item{display:flex;justify-content:space-between;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--gray-lighter)}
+.detail-item:last-child{border-bottom:none}
+.detail-label{color:var(--gray);font-size:.85rem}
+.detail-value{font-weight:600;font-size:.88rem;text-align:right;word-break:break-word}
+.modal-actions{display:flex;gap:.75rem;margin-top:1rem}
+.modal-actions .btn{flex:1}
+.payment-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin:1rem 0}
+.payment-method{background:#fff;border:2px solid var(--gray-light);border-radius:var(--radius);padding:1rem .5rem;text-align:center;cursor:pointer;transition:var(--transition)}
+.payment-method:hover{border-color:var(--primary);transform:translateY(-2px)}
+.payment-method.active{border-color:var(--primary);background:var(--primary-light)}
+.payment-icon{width:46px;height:46px;border-radius:50%;background:var(--gray-lighter);display:flex;align-items:center;justify-content:center;margin:0 auto .5rem;font-size:1.25rem;color:var(--primary)}
+.payment-method span{font-size:.78rem;font-weight:600}
+.topup-summary{background:var(--gray-lighter);border-radius:var(--radius);padding:1rem;margin:1rem 0}
+.topup-summary .summary-item{display:flex;justify-content:space-between;padding:.5rem 0;font-size:.88rem;border-bottom:1px solid var(--gray-light)}
+.topup-summary .summary-item:last-child{border-bottom:none}
+.topup-summary .summary-item.total{font-weight:700;font-size:.98rem}
+
+/* contact/merchant detail modal */
+.contact-detail-header,.merchant-detail-header{text-align:center;margin-bottom:1.25rem}
+.contact-detail-avatar,.merchant-detail-logo{width:80px;height:80px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;margin:0 auto .75rem}
+.merchant-detail-logo{border-radius:20px}
+.contact-detail-header h3,.merchant-detail-header h3{font-size:1.1rem;margin-bottom:.25rem}
+.contact-detail-header p,.merchant-detail-header p{color:var(--gray);font-size:.85rem}
+.merchant-detail-rating{color:var(--warning);font-weight:700;margin-top:.25rem}
+
+/* notifications */
+.notif-item{display:flex;align-items:flex-start;gap:.75rem;padding:.9rem 0;border-bottom:1px solid var(--gray-lighter)}
+.notif-item:last-child{border-bottom:none}
+.notif-item.unread{background:rgba(37,99,235,.04);padding-left:.5rem;padding-right:.5rem;border-radius:8px}
+.notif-icon{width:38px;height:38px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.9rem}
+.notif-body{flex:1;min-width:0}
+.notif-title{font-weight:600;font-size:.88rem;margin-bottom:.2rem}
+.notif-msg{font-size:.8rem;color:var(--gray);line-height:1.4}
+.notif-time{font-size:.72rem;color:var(--gray);margin-top:.25rem}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);margin-top:.5rem;flex-shrink:0}
+
+/* help / terms */
+.help-content,.terms-content{max-height:60vh;overflow-y:auto}
+.faq-item{padding:.85rem 0;border-bottom:1px solid var(--gray-lighter)}
+.faq-item:last-child{border-bottom:none}
+.faq-q{font-weight:600;font-size:.88rem;margin-bottom:.3rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.faq-q i{color:var(--gray);transition:var(--transition)}
+.faq-item.open .faq-q i{transform:rotate(180deg)}
+.faq-a{font-size:.82rem;color:var(--gray);line-height:1.55;display:none;margin-top:.4rem}
+.faq-item.open .faq-a{display:block}
+.support-contacts{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray-lighter)}
+.support-contacts p{display:flex;align-items:center;gap:.6rem;font-size:.85rem;margin-bottom:.6rem}
+.support-contacts i{color:var(--primary);width:18px}
+.terms-content h4{font-size:.9rem;margin-bottom:.5rem}
+.terms-content h5{font-size:.85rem;margin:1rem 0 .35rem;color:var(--dark)}
+.terms-content p{font-size:.82rem;color:var(--gray);line-height:1.6;margin-bottom:.5rem}
+
+/* ===== TOAST ===== */
+.notification-container{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:.5rem;z-index:3000}
+.toast{display:flex;align-items:center;gap:.6rem;background:var(--dark);color:#fff;padding:.8rem 1.1rem;border-radius:10px;font-size:.86rem;font-weight:500;box-shadow:var(--shadow-lg);animation:toastIn .3s ease;max-width:320px}
+.toast i{color:#60a5fa}
+.toast.success i{color:#34d399}
+.toast.error i{color:#f87171}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.connection-status-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:.5rem 1rem;border-radius:999px;font-size:.78rem;display:flex;align-items:center;gap:.5rem;z-index:900;box-shadow:var(--shadow);white-space:nowrap}
+.notification-bell{position:relative;background:none;border:none;color:var(--gray);font-size:1.2rem;padding:.5rem;border-radius:8px}
+.notification-bell:hover{background:var(--gray-lighter);color:var(--dark)}
+.notification-badge{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:.65rem;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:700}
+.notification-badge.empty{display:none}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--gray-lighter)}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:992px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .main-content{margin-left:0;padding-top:90px}
+  .mobile-header{display:flex;position:fixed;top:0;left:0;right:0;height:70px;background:#fff;border-bottom:1px solid var(--gray-light);z-index:100}
+  .mobile-header-content{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 1rem}
+  .menu-toggle{background:none;border:none;font-size:1.2rem;color:var(--dark);padding:.5rem;border-radius:8px}
+  .mobile-logo{display:flex;align-items:center;gap:.5rem;font-weight:700;letter-spacing:1px;font-size:.95rem}
+  .mobile-logo i{color:var(--primary)}
+  .mobile-header-actions{display:flex;align-items:center;gap:.5rem}
+  .payment-content{grid-template-columns:1fr}
+  .actions-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:600px){
+  .main-content{padding:1rem;padding-top:85px}
+  .balance-amount{font-size:1.6rem}
+  .transaction-summary{grid-template-columns:1fr}
+  .payment-methods-tabs{grid-template-columns:repeat(2,1fr)}
+  .payment-methods{grid-template-columns:1fr}
+  .qr-info{grid-template-columns:1fr}
+  .actions-grid{grid-template-columns:repeat(3,1fr)}
+  .connection-status-bar{display:none}
+  .modal-actions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo"><i class="fas fa-vault"></i></div>
+    <h1>PAYVAULT</h1>
+    <p class="login-sub">Masuk ke akun Anda</p>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="login-username">Username</label>
+        <div class="input-with-icon">
+          <i class="fas fa-user"></i>
+          <input type="text" id="login-username" value="user" autocomplete="username">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <div class="input-with-icon">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="login-password" value="user123" autocomplete="current-password">
+          <button type="button" class="toggle-pass" id="toggle-pass"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="login-error" id="login-error"><i class="fas fa-exclamation-circle"></i><span>Username atau password salah!</span></div>
+      <button type="submit" class="btn btn-primary btn-block" id="login-btn">
+        <i class="fas fa-sign-in-alt"></i><span>Masuk</span>
+      </button>
+    </form>
+    <p class="login-hint"><i class="fas fa-info-circle"></i> Kredensial sudah terisi — cukup klik <b>Masuk</b>.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-container hidden" id="app-container">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo"><i class="fas fa-vault"></i><span>PAYVAULT</span></div>
+      <div class="user-info">
+        <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
+        <div class="user-details">
+          <h4 id="user-fullname">Budi Santoso</h4>
+          <span class="user-id" id="user-id">ID: USER-001</span>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+      <a href="#" class="menu-item active" data-page="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      <a href="#" class="menu-item" data-page="payments"><i class="fas fa-wallet"></i><span>Pembayaran</span></a>
+      <a href="#" class="menu-item" data-page="transactions"><i class="fas fa-history"></i><span>Transaksi</span></a>
+      <a href="#" class="menu-item" data-page="contacts"><i class="fas fa-users"></i><span>Kontak</span></a>
+      <a href="#" class="menu-item" data-page="merchants"><i class="fas fa-store"></i><span>Merchant</span></a>
+      <a href="#" class="menu-item" data-page="qrcode"><i class="fas fa-qrcode"></i><span>QR Code Saya</span></a>
+      <a href="#" class="menu-item" data-page="settings"><i class="fas fa-cog"></i><span>Pengaturan</span></a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="connection-status">
+        <div class="status-indicator"><div class="status-dot offline"></div><span>Mode Offline</span></div>
+        <div class="last-sync"><small id="sidebar-last-sync">Sync: 10:30</small></div>
+      </div>
+      <button class="btn-logout" id="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+    </div>
+  </nav>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- MOBILE HEADER -->
+  <header class="mobile-header">
+    <div class="mobile-header-content">
+      <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></button>
+      <div class="mobile-logo"><i class="fas fa-vault"></i><span>PAYVAULT</span></div>
+      <div class="mobile-header-actions">
+        <button class="notification-bell" id="notification-bell">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge" id="notification-badge">2</span>
+        </button>
+        <div class="user-avatar" style="width:36px;height:36px"><i class="fas fa-user-circle"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main-content" id="main-content">
+
+    <!-- =========== DASHBOARD =========== -->
+    <div class="page active" id="dashboard-page">
+      <div class="page-header">
+        <div class="page-title">
+          <h2>Dashboard</h2>
+          <div class="page-subtitle" id="greeting-message">Selamat pagi!</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn-action" id="quick-scan"><i class="fas fa-qrcode"></i><span>Scan QR</span></button>
+          <button class="btn-action" id="quick-pay"><i class="fas fa-paper-plane"></i><span>Bayar</span></button>
+        </div>
+      </div>
+
+      <div class="balance-section">
+        <div class="balance-card">
+          <div class="balance-header">
+            <h3>Saldo Tersedia</h3>
+            <div class="balance-actions">
+              <button class="btn-icon" id="toggle-balance" title="Sembunyikan/Tampilkan"><i class="fas fa-eye"></i></button>
+              <button class="btn-icon" id="refresh-balance" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+              <button class="btn-icon" id="add-balance" title="Top Up"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="balance-amount" id="balance-display">Rp 1.250.000</div>
+          <div class="balance-info">
+            <div class="info-item"><span class="info-label">Limit Offline</span><span class="info-value">Rp 500.000</span></div>
+            <div class="info-item"><span class="info-label">Status</span><span class="info-value status-secure"><i class="fas fa-shield-alt"></i> AES-256 Active</span></div>
+            <div class="info-item"><span class="info-label">Last Sync</span><span class="info-value" id="last-sync">10 menit lalu</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="emergency-card">
+        <div class="emergency-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="emergency-content">
+          <h4>Emergency Mode</h4>
+          <p>Aktifkan untuk pembayaran darurat ketika semua jaringan terputus</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="emergency-toggle"><span class="slider"></span></label>
+      </div>
+
+      <div class="quick-actions-section">
+        <h3 class="section-title">Quick Actions</h3>
+        <div class="actions-grid">
+          <div class="action-card" data-action="pay"><div class="action-icon pay"><i class="fas fa-wallet"></i></div><span class="action-label">Bayar</span></div>
+          <div class="action-card" data-action="receive"><div class="action-icon receive"><i class="fas fa-qrcode"></i></div><span class="action-label">Terima</span></div>
+          <div class="action-card" data-action="transfer"><div class="action-icon transfer"><i class="fas fa-exchange-alt"></i></div><span class="action-label">Transfer</span></div>
+          <div class="action-card" data-action="topup"><div class="action-icon topup"><i class="fas fa-credit-card"></i></div><span class="action-label">Top Up</span></div>
+          <div class="action-card" data-action="history"><div class="action-icon history"><i class="fas fa-history"></i></div><span class="action-label">Riwayat</span></div>
+          <div class="action-card" data-action="contacts"><div class="action-icon contacts"><i class="fas fa-users"></i></div><span class="action-label">Kontak</span></div>
+        </div>
+      </div>
+
+      <div class="recent-transactions">
+        <div class="section-header">
+          <h3 class="section-title">Transaksi Terbaru</h3>
+          <a href="#" class="view-all" data-page="transactions">Lihat Semua</a>
+        </div>
+        <div class="transactions-list" id="recent-transactions"></div>
+      </div>
+
+      <div class="devices-section">
+        <h3 class="section-title">Perangkat Terhubung</h3>
+        <div class="device-item">
+          <div class="device-icon"><i class="fas fa-mobile-alt"></i></div>
+          <div class="device-info"><h4>Smartphone Anda</h4><p>Terhubung via Bluetooth</p></div>
+          <div class="device-status"><i class="fas fa-circle"></i><span>Aktif</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========== PAYMENTS =========== -->
+    <div class="page" id="payments-page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <button class="btn-back" data-back><i class="fas fa-arrow-left"></i> Kembali</button>
+          <h2>Pembayaran</h2>
+        </div>
+        <div class="page-actions">
+          <button class="btn-action" id="scan-qr-btn"><i class="fas fa-qrcode"></i><span>Scan QR</span></button>
+        </div>
+      </div>
+
+      <div class="payment-tabs-container">
+        <div class="payment-methods-tabs">
+          <button class="payment-tab active" data-method="bluetooth"><i class="fas fa-bluetooth-b"></i><span>Bluetooth</span></button>
+          <button class="payment-tab" data-method="nfc"><i class="fas fa-wifi"></i><span>NFC</span></button>
+          <button class="payment-tab" data-method="qr"><i class="fas fa-qrcode"></i><span>QR Code</span></button>
+          <button class="payment-tab" data-method="emergency"><i class="fas fa-shield-alt"></i><span>Emergency</span></button>
+        </div>
+      </div>
+
+      <div class="payment-content">
+        <div>
+          <div class="payment-method-content active" id="bluetooth-payment">
+            <h3>Cari Perangkat</h3>
+            <div class="search-box"><i class="fas fa-search"></i><input type="text" id="device-search-input" placeholder="Cari perangkat merchant..."></div>
+            <div class="empty-state"><i class="fas fa-bluetooth-b"></i><h4>Cari Perangkat</h4><p>Mulai pencarian untuk menemukan perangkat terdekat</p></div>
+          </div>
+          <div class="payment-method-content" id="qr-payment">
+            <h3>Scan QR Code</h3>
+            <div class="qr-container">
+              <div class="qr-placeholder"><i class="fas fa-qrcode"></i><p>Arahkan kamera ke QR Code merchant</p></div>
+            </div>
+            <button class="btn btn-primary btn-scan" id="activate-camera"><i class="fas fa-camera"></i> Aktifkan Kamera</button>
+          </div>
+          <div class="payment-method-content" id="nfc-payment">
+            <h3>Pembayaran NFC</h3>
+            <div class="qr-container">
+              <div class="qr-placeholder"><i class="fas fa-wifi"></i><p>Dekatkan ponsel ke reader NFC</p></div>
+            </div>
+            <button class="btn btn-primary btn-scan" onclick="toast('NFC diaktifkan — dekatkan ponsel ke reader','success')"><i class="fas fa-wifi"></i> Aktifkan NFC</button>
+          </div>
+          <div class="payment-method-content" id="emergency-payment">
+            <h3>Emergency Payment</h3>
+            <div class="qr-container">
+              <div class="qr-placeholder"><i class="fas fa-shield-alt"></i><p>Pembayaran offline via Bluetooth mesh</p></div>
+            </div>
+            <button class="btn btn-primary btn-scan" onclick="toast('Mode darurat aktif — membayar offline','success')"><i class="fas fa-shield-alt"></i> Bayar Offline</button>
+          </div>
+        </div>
+
+        <div class="payment-form-container">
+          <div class="payment-form">
+            <h3>Detail Pembayaran</h3>
+            <form id="paymentForm">
+              <div class="form-group">
+                <label for="payment-amount">Jumlah</label>
+                <div class="input-with-icon"><i class="fas fa-money-bill-wave"></i><input type="text" id="payment-amount" placeholder="0" required><span class="currency">IDR</span></div>
+              </div>
+              <div class="form-group">
+                <label for="payment-merchant">Merchant</label>
+                <div class="input-with-icon"><i class="fas fa-store"></i><input type="text" id="payment-merchant" placeholder="Nama merchant" required></div>
+              </div>
+              <div class="form-group">
+                <label for="payment-note">Catatan (opsional)</label>
+                <textarea id="payment-note" placeholder="Tambahkan catatan..."></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary btn-pay"><i class="fas fa-paper-plane"></i> Lanjutkan Pembayaran</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========== TRANSACTIONS =========== -->
+    <div class="page" id="transactions-page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <button class="btn-back" data-back><i class="fas fa-arrow-left"></i> Kembali</button>
+          <h2>Riwayat Transaksi</h2>
+        </div>
+        <div class="filter-options">
+          <select class="filter-select" id="transaction-filter">
+            <option value="all">Semua Transaksi</option>
+            <option value="today">Hari Ini</option>
+            <option value="week">Minggu Ini</option>
+            <option value="month">Bulan Ini</option>
+            <option value="sent">Dikirim</option>
+            <option value="received">Diterima</option>
+          </select>
+          <button class="btn-action" id="export-transactions"><i class="fas fa-file-export"></i><span>Export</span></button>
+        </div>
+      </div>
+
+      <div class="transactions-container">
+        <div class="transaction-summary">
+          <div class="summary-item"><span class="summary-label">Total Transaksi</span><span class="summary-value" id="total-transactions">0</span></div>
+          <div class="summary-item"><span class="summary-label">Total Pengeluaran</span><span class="summary-value expense" id="total-expense">Rp 0</span></div>
+          <div class="summary-item"><span class="summary-label">Total Pemasukan</span><span class="summary-value income" id="total-income">Rp 0</span></div>
+        </div>
+        <div class="transactions-list" id="full-transactions-list"></div>
+      </div>
+    </div>
+
+    <!-- =========== CONTACTS =========== -->
+    <div class="page" id="contacts-page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <button class="btn-back" data-back><i class="fas fa-arrow-left"></i> Kembali</button>
+          <h2>Kontak</h2>
+        </div>
+        <div class="contact-actions">
+          <button class="btn-action" id="add-contact"><i class="fas fa-user-plus"></i><span>Tambah Kontak</span></button>
+          <button class="btn-action" id="import-contacts"><i class="fas fa-upload"></i><span>Import</span></button>
+        </div>
+      </div>
+      <div class="search-box"><i class="fas fa-search"></i><input type="text" id="contact-search-input" placeholder="Cari kontak..."></div>
+      <div id="contacts-list"></div>
+    </div>
+
+    <!-- =========== MERCHANTS =========== -->
+    <div class="page" id="merchants-page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <button class="btn-back" data-back><i class="fas fa-arrow-left"></i> Kembali</button>
+          <h2>Merchant</h2>
+        </div>
+        <div class="filter-options">
+          <select class="filter-select" id="merchant-filter">
+            <option value="all">Semua Merchant</option>
+            <option value="restaurant">Restoran</option>
+            <option value="retail">Retail</option>
+            <option value="supermarket">Supermarket</option>
+            <option value="cafe">Kafe</option>
+          </select>
+        </div>
+      </div>
+      <div id="merchants-list"></div>
+    </div>
+
+    <!-- =========== QR =========== -->
+    <div class="page" id="qrcode-page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <button class="btn-back" data-back><i class="fas fa-arrow-left"></i> Kembali</button>
+          <h2>QR Code Saya</h2>
+        </div>
+        <div class="page-actions">
+          <button class="btn-action" id="share-qr"><i class="fas fa-share-alt"></i><span>Bagikan</span></button>
+        </div>
+      </div>
+      <div class="qr-code-container">
+        <div class="qr-code-display" id="qr-code"></div>
+        <div class="qr-info">
+          <div class="qr-info-item"><label>User ID</label><div class="qr-info-value" id="qr-user-id">USER-001</div></div>
+          <div class="qr-info-item"><label>Nama</label><div class="qr-info-value" id="qr-user-name">Budi Santoso</div></div>
+          <div class="qr-info-item"><label>Saldo</label><div class="qr-info-value" id="qr-user-balance">Rp 1.250.000</div></div>
+        </div>
+        <div class="qr-instructions">
+          <h4>Instruksi:</h4>
+          <ol>
+            <li>Tunjukkan QR Code ini ke merchant untuk pembayaran</li>
+            <li>QR Code akan otomatis refresh setiap 30 detik</li>
+            <li>Jangan bagikan screenshot QR Code kepada orang lain</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========== SETTINGS =========== -->
+    <div class="page" id="settings-page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <button class="btn-back" data-back><i class="fas fa-arrow-left"></i> Kembali</button>
+          <h2>Pengaturan</h2>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3><i class="fas fa-user-cog"></i> Akun</h3>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Profil</h4><p>Ubah informasi profil Anda</p></div>
+          <button class="btn-setting" data-setting="profile"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Keamanan</h4><p>Password, PIN, dan autentikasi</p></div>
+          <button class="btn-setting" data-setting="security"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Privasi</h4><p>Pengaturan privasi data</p></div>
+          <button class="btn-setting" data-setting="privacy"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3><i class="fas fa-wallet"></i> Pembayaran</h3>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Limit Transaksi</h4><p>Atur batas transaksi harian/bulanan</p></div>
+          <button class="btn-setting" data-setting="limits"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Metode Pembayaran</h4><p>Kelola metode pembayaran tersimpan</p></div>
+          <button class="btn-setting" data-setting="payment-methods"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Notifikasi</h4><p>Pengaturan notifikasi transaksi</p></div>
+          <button class="btn-setting" data-setting="notifications"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3><i class="fas fa-sliders-h"></i> Sistem</h3>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Auto Sync</h4><p>Pengaturan sinkronisasi otomatis</p></div>
+          <label class="switch"><input type="checkbox" id="auto-sync" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Mode Gelap</h4><p>Aktifkan tema gelap</p></div>
+          <label class="switch"><input type="checkbox" id="dark-mode"><span class="slider"></span></label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Bahasa</h4><p>Pilih bahasa aplikasi</p></div>
+          <select class="select-input" id="language-select"><option value="id">Indonesia</option><option value="en">English</option></select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3><i class="fas fa-info-circle"></i> Tentang</h3>
+        <div class="setting-item"><div class="setting-info"><h4>Versi Aplikasi</h4><p>1.0.0</p></div></div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Bantuan & Dukungan</h4><p>FAQ dan kontak support</p></div>
+          <button class="btn-setting" data-setting="help"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Ketentuan Layanan</h4><p>Syarat dan ketentuan penggunaan</p></div>
+          <button class="btn-setting" data-setting="terms"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="settings-actions">
+        <button class="btn btn-danger btn-block" id="clear-data"><i class="fas fa-trash-alt"></i> Hapus Semua Data</button>
+        <button class="btn btn-danger btn-block" id="logout-settings"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ====== PAYMENT MODAL ====== -->
+  <div class="modal" id="payment-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Konfirmasi Pembayaran</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div>
+          <div class="detail-item"><span class="detail-label">Jumlah</span><span class="detail-value" id="modal-amount">Rp 0</span></div>
+          <div class="detail-item"><span class="detail-label">Kepada</span><span class="detail-value" id="modal-merchant">-</span></div>
+          <div class="detail-item"><span class="detail-label">Metode</span><span class="detail-value" id="modal-method">-</span></div>
+          <div class="detail-item"><span class="detail-label">Catatan</span><span class="detail-value" id="modal-note">-</span></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="cancel-payment">Batal</button>
+          <button class="btn btn-primary" id="confirm-payment">Konfirmasi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== TRANSFER MODAL ====== -->
+  <div class="modal" id="transfer-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Transfer ke Pengguna</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <form id="transferForm">
+          <div class="form-group"><label for="transfer-to">Kepada</label><div class="input-with-icon"><i class="fas fa-user"></i><input type="text" id="transfer-to" placeholder="Username, email, atau ID" required></div></div>
+          <div class="form-group"><label for="transfer-amount">Jumlah</label><div class="input-with-icon"><i class="fas fa-money-bill-wave"></i><input type="text" id="transfer-amount" placeholder="0" required><span class="currency">IDR</span></div></div>
+          <div class="form-group"><label for="transfer-note">Catatan (opsional)</label><textarea id="transfer-note" placeholder="Tambahkan catatan..."></textarea></div>
+          <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-paper-plane"></i> Transfer Sekarang</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== TOPUP MODAL ====== -->
+  <div class="modal" id="topup-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Top Up Saldo</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="topup-options">
+          <h4 style="font-size:.9rem;margin-bottom:.25rem">Pilih Metode Pembayaran</h4>
+          <div class="payment-methods">
+            <div class="payment-method" data-method="bank"><div class="payment-icon"><i class="fas fa-university"></i></div><span>Transfer Bank</span></div>
+            <div class="payment-method" data-method="virtual-account"><div class="payment-icon"><i class="fas fa-credit-card"></i></div><span>Virtual Account</span></div>
+            <div class="payment-method" data-method="qris"><div class="payment-icon"><i class="fas fa-qrcode"></i></div><span>QRIS</span></div>
+          </div>
+        </div>
+        <form id="topupForm" style="display:none">
+          <div class="form-group"><label for="topup-amount">Jumlah Top Up</label><div class="input-with-icon"><i class="fas fa-money-bill-wave"></i><input type="text" id="topup-amount" placeholder="0" required><span class="currency">IDR</span></div></div>
+          <div class="topup-summary">
+            <div class="summary-item"><span>Jumlah Top Up</span><span id="summary-amount">Rp 0</span></div>
+            <div class="summary-item"><span>Biaya Admin</span><span>Rp 2.500</span></div>
+            <div class="summary-item total"><span>Total Bayar</span><span id="summary-total">Rp 0</span></div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-shopping-cart"></i> Bayar Sekarang</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ADD CONTACT MODAL ====== -->
+  <div class="modal" id="add-contact-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Tambah Kontak Baru</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <form id="addContactForm">
+          <div class="form-group"><label for="contact-name">Nama</label><input type="text" id="contact-name" placeholder="Nama lengkap" required></div>
+          <div class="form-group"><label for="contact-phone">Nomor Telepon</label><input type="tel" id="contact-phone" placeholder="0812-3456-7890" required></div>
+          <div class="form-group"><label for="contact-email">Email (opsional)</label><input type="email" id="contact-email" placeholder="email@contoh.com"></div>
+          <div class="form-group"><label for="contact-payvault-id">PayVault ID (opsional)</label><input type="text" id="contact-payvault-id" placeholder="PAYV-USER-XXXXX"></div>
+          <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Simpan Kontak</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== CONTACT DETAIL MODAL ====== -->
+  <div class="modal" id="contact-detail-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Detail Kontak</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="contact-detail-header">
+          <div class="contact-detail-avatar" id="cd-avatar">BS</div>
+          <h3 id="cd-name">Nama</h3>
+          <p id="cd-payvault">PAYV-USER-000</p>
+        </div>
+        <div class="detail-item"><span class="detail-label">Telepon</span><span class="detail-value" id="cd-phone">-</span></div>
+        <div class="detail-item"><span class="detail-label">Email</span><span class="detail-value" id="cd-email">-</span></div>
+        <div class="modal-actions">
+          <button class="btn btn-danger" id="cd-delete"><i class="fas fa-trash"></i> Hapus</button>
+          <button class="btn btn-primary" id="cd-transfer"><i class="fas fa-paper-plane"></i> Transfer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== MERCHANT DETAIL MODAL ====== -->
+  <div class="modal" id="merchant-detail-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Detail Merchant</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="merchant-detail-header">
+          <div class="merchant-detail-logo" id="md-logo"><i class="fas fa-store"></i></div>
+          <h3 id="md-name">Merchant</h3>
+          <p id="md-address">Alamat</p>
+          <div class="merchant-detail-rating" id="md-rating">⭐ 4.8</div>
+        </div>
+        <div class="detail-item"><span class="detail-label">Kategori</span><span class="detail-value" id="md-category">-</span></div>
+        <div class="detail-item"><span class="detail-label">Total Transaksi</span><span class="detail-value" id="md-trx">-</span></div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="md-close-btn">Tutup</button>
+          <button class="btn btn-primary" id="md-pay"><i class="fas fa-paper-plane"></i> Bayar Sekarang</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== TRANSACTION DETAIL MODAL ====== -->
+  <div class="modal" id="transaction-detail-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Detail Transaksi</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="detail-item"><span class="detail-label">ID Transaksi</span><span class="detail-value" id="td-id">-</span></div>
+        <div class="detail-item"><span class="detail-label">Jenis</span><span class="detail-value" id="td-type">-</span></div>
+        <div class="detail-item"><span class="detail-label">Judul</span><span class="detail-value" id="td-title">-</span></div>
+        <div class="detail-item"><span class="detail-label">Metode</span><span class="detail-value" id="td-method">-</span></div>
+        <div class="detail-item"><span class="detail-label">Waktu</span><span class="detail-value" id="td-date">-</span></div>
+        <div class="detail-item"><span class="detail-label">Jumlah</span><span class="detail-value" id="td-amount" style="font-size:1.1rem">Rp 0</span></div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeModal('transaction-detail-modal')">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== NOTIFICATIONS MODAL ====== -->
+  <div class="modal" id="notifications-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Notifikasi</h3>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <button class="btn-action" id="mark-all-read" style="padding:.4rem .7rem;font-size:.75rem">Tandai dibaca</button>
+          <button class="modal-close"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      <div class="modal-body" id="notifications-list"></div>
+    </div>
+  </div>
+
+  <!-- ====== PROFILE MODAL ====== -->
+  <div class="modal" id="profile-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Profil Saya</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="contact-detail-header">
+          <div class="contact-detail-avatar" id="pm-avatar">BS</div>
+          <h3 id="pm-name">Budi Santoso</h3>
+          <p id="pm-id">USER-001</p>
+        </div>
+        <form id="profileForm">
+          <div class="form-group"><label>Nama Lengkap</label><input type="text" id="pf-name" required></div>
+          <div class="form-group"><label>Email</label><input type="email" id="pf-email" required></div>
+          <div class="form-group"><label>Nomor Telepon</label><input type="tel" id="pf-phone" placeholder="0812-xxxx-xxxx"></div>
+          <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Simpan Perubahan</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SECURITY MODAL ====== -->
+  <div class="modal" id="security-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Keamanan Akun</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <form id="securityForm">
+          <div class="form-group"><label>Password Lama</label><input type="password" id="sec-old" required></div>
+          <div class="form-group"><label>Password Baru</label><input type="password" id="sec-new" required minlength="6"></div>
+          <div class="form-group"><label>Konfirmasi Password Baru</label><input type="password" id="sec-confirm" required minlength="6"></div>
+          <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-lock"></i> Ubah Password</button>
+        </form>
+        <div class="setting-item" style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray-lighter)">
+          <div class="setting-info"><h4>Autentikasi Dua Faktor</h4><p>Keamanan tambahan saat login</p></div>
+          <label class="switch"><input type="checkbox" id="twofa-toggle"><span class="slider"></span></label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>PIN Transaksi</h4><p>PIN 6 digit untuk setiap transaksi</p></div>
+          <button class="btn-action" onclick="toast('PIN transaksi berhasil diperbarui (demo)','success')">Ubah PIN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== PRIVACY MODAL ====== -->
+  <div class="modal" id="privacy-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Privasi Data</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="setting-item">
+          <div class="setting-info"><h4>Tampilkan Profil</h4><p>Pengguna lain dapat mencari Anda</p></div>
+          <label class="switch"><input type="checkbox" id="priv-profile" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Tampilkan Saldo</h4><p>Tampilkan saldo di QR Code</p></div>
+          <label class="switch"><input type="checkbox" id="priv-balance" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Berbagi Data Analitik</h4><p>Bantu kami meningkatkan layanan</p></div>
+          <label class="switch"><input type="checkbox" id="priv-analytics" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Izinkan Tagihan Otomatis</h4><p>Pembayaran langganan otomatis</p></div>
+          <label class="switch"><input type="checkbox" id="priv-autopay"><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== LIMITS MODAL ====== -->
+  <div class="modal" id="limits-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Limit Transaksi</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <form id="limitsForm">
+          <div class="form-group"><label>Limit Harian (IDR)</label><div class="input-with-icon"><i class="fas fa-calendar-day"></i><input type="text" id="lim-daily" value="5.000.000"></div></div>
+          <div class="form-group"><label>Limit Bulanan (IDR)</label><div class="input-with-icon"><i class="fas fa-calendar"></i><input type="text" id="lim-monthly" value="50.000.000"></div></div>
+          <div class="form-group"><label>Limit Offline (IDR)</label><div class="input-with-icon"><i class="fas fa-wifi"></i><input type="text" id="lim-offline" value="500.000"></div></div>
+          <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Simpan Limit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== PAYMENT METHODS MODAL ====== -->
+  <div class="modal" id="payment-methods-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Metode Pembayaran</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="contact-card" style="margin-bottom:.75rem">
+          <div class="contact-avatar" style="background:rgba(37,99,235,.15);color:var(--primary)"><i class="fas fa-university"></i></div>
+          <div class="contact-info"><h4>BCA Virtual Account</h4><p>**** **** 4521</p></div>
+          <button class="btn-icon" onclick="toast('Metode pembayaran dihapus (demo)','success')"><i class="fas fa-trash"></i></button>
+        </div>
+        <div class="contact-card" style="margin-bottom:.75rem">
+          <div class="contact-avatar" style="background:rgba(16,185,129,.15);color:var(--success)"><i class="fas fa-credit-card"></i></div>
+          <div class="contact-info"><h4>Kartu Debit BNI</h4><p>**** **** 8830</p></div>
+          <button class="btn-icon" onclick="toast('Metode pembayaran dihapus (demo)','success')"><i class="fas fa-trash"></i></button>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="toast('Form tambah metode (demo)','success')"><i class="fas fa-plus"></i> Tambah Metode</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== NOTIFICATION SETTINGS MODAL ====== -->
+  <div class="modal" id="notification-settings-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Pengaturan Notifikasi</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="setting-item">
+          <div class="setting-info"><h4>Notifikasi Transaksi</h4><p>Terima notifikasi setiap transaksi</p></div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Notifikasi Promosi</h4><p>Info promo dan penawaran</p></div>
+          <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Email Notifikasi</h4><p>Kirim salinan ke email</p></div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info"><h4>Push Notifikasi</h4><p>Notifikasi push di perangkat</p></div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== HELP MODAL ====== -->
+  <div class="modal" id="help-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Bantuan & FAQ</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="help-content">
+          <div class="faq-item">
+            <div class="faq-q">Bagaimana cara top up saldo? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">Buka menu Top Up di dashboard, pilih metode (Transfer Bank, VA, atau QRIS), masukkan jumlah, lalu konfirmasi. Saldo otomatis bertambah setelah pembayaran diverifikasi.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Apa itu Emergency Mode? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">Mode pembayaran darurat yang memungkinkan transaksi ketika semua jaringan terputus. Pembayaran dilakukan via mesh Bluetooth antar perangkat PayVault terdekat, disinkronkan saat koneksi kembali.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Berapa limit transaksi saya? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">Limit default: Rp 5.000.000/hari dan Rp 50.000.000/bulan. Untuk limit offline Rp 500.000. Anda bisa mengubahnya di menu Pengaturan → Limit Transaksi.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Bagaimana keamanan data saya? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">PayVault menggunakan enkripsi AES-256 untuk semua data sensitif. Setiap transaksi juga memerlukan PIN dan dapat dilindungi dengan 2FA.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">QR Code saya refresh otomatis? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">Ya, QR Code di halaman "QR Code Saya" diperbarui otomatis setiap 30 detik untuk mencegah penyalahgunaan screenshot.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Bagaimana cara menghubungi support? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">Lihat kontak support di bawah — kami siap membantu 24/7.</div>
+          </div>
+          <div class="support-contacts">
+            <p><i class="fas fa-envelope"></i> support@payvault.id</p>
+            <p><i class="fas fa-phone"></i> 0800-1-PAYVAULT (24 jam)</p>
+            <p><i class="fab fa-whatsapp"></i> +62 812-3456-7890</p>
+            <p><i class="fas fa-map-marker-alt"></i> Jl. Sudirman No. 88, Jakarta</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== TERMS MODAL ====== -->
+  <div class="modal" id="terms-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Ketentuan Layanan</h3><button class="modal-close"><i class="fas fa-times"></i></button></div>
+      <div class="modal-body">
+        <div class="terms-content">
+          <h4>Syarat & Ketentuan Penggunaan PAYVAULT</h4>
+          <p>Dengan menggunakan layanan PayVault, Anda menyetujui syarat dan ketentuan berikut. Bacalah dengan seksama sebelum menggunakan layanan.</p>
+          <h5>1. Definisi Layanan</h5>
+          <p>PayVault adalah platform dompet digital yang memungkinkan pembayaran online dan offline, transfer antar pengguna, dan top up saldo. Layanan mencakup pembayaran via Bluetooth, NFC, QR Code, dan Emergency Mode.</p>
+          <h5>2. Akun Pengguna</h5>
+          <p>Anda bertanggung jawab menjaga kerahasiaan kredensial akun, PIN transaksi, dan kode OTP. Segala aktivitas yang terjadi melalui akun Anda dianggap sah sebagai tindakan Anda.</p>
+          <h5>3. Keamanan Data</h5>
+          <p>PayVault menggunakan enkripsi AES-256 untuk data sensitif, autentikasi dua faktor opsional, serta monitoring transaksi mencurigakan. Kami tidak menyimpan password dalam bentuk plain text.</p>
+          <h5>4. Biaya & Limit</h5>
+          <p>Transaksi top up dikenakan biaya admin Rp 2.500. Limit harian default Rp 5.000.000, bulanan Rp 50.000.000, dan limit offline Rp 500.000. Limit dapat disesuaikan melalui pengaturan.</p>
+          <h5>5. Pembatasan Tanggung Jawab</h5>
+          <p>PayVault tidak bertanggung jawab atas kerugian akibat kelalaian pengguna dalam menjaga keamanan akun, atau gangguan layanan di luar kendali kami (force majeure).</p>
+          <h5>6. Penyelesaian Sengketa</h5>
+          <p>Segala sengketa diselesaikan secara musyawarah, dan jika tidak tercapai kesepakatan, diselesaikan sesuai hukum yang berlaku di Republik Indonesia.</p>
+          <p style="text-align:center;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--gray-lighter);color:var(--gray)">Terakhir diperbarui: 1 Januari 2026</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONNECTION BAR + TOASTS -->
+  <div class="connection-status-bar"><i class="fas fa-bluetooth-b"></i><span>Mencari perangkat terdekat...</span></div>
+  <div class="notification-container" id="notification-container"></div>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+const USER_CREDENTIALS = { username: 'user', password: 'user123' };
+
+/* ============ STATE ============ */
+const state = {
+  user: { id:'USER-001', name:'Budi Santoso', email:'budi@mail.com', phone:'0812-3456-7890', balance:1250000 },
+  balanceHidden: false,
+  contacts: [
+    { id:'c1', name:'Siti Aminah',  phone:'0812-1111-2222', email:'siti@mail.com',  payvault:'PAYV-USER-002' },
+    { id:'c2', name:'Andi Wijaya',  phone:'0813-3333-4444', email:'andi@mail.com',  payvault:'PAYV-USER-003' },
+    { id:'c3', name:'Dewi Lestari', phone:'0857-5555-6666', email:'dewi@mail.com',  payvault:'PAYV-USER-004' }
+  ],
+  merchants: [
+    { id:'m1', name:'Kopi Kenangan', category:'cafe',        icon:'fa-coffee',          rating:4.8, address:'Jl. Sudirman No. 12',   trx:1240 },
+    { id:'m2', name:'Indomaret',     category:'retail',      icon:'fa-store',           rating:4.6, address:'Jl. Gatot Subroto No. 8', trx:3890 },
+    { id:'m3', name:'Alfamart',      category:'retail',      icon:'fa-shopping-basket', rating:4.5, address:'Jl. Asia Afrika No. 21', trx:3120 },
+    { id:'m4', name:'Starbucks',     category:'cafe',        icon:'fa-mug-hot',         rating:4.9, address:'Plaza Senayan Lt. 2',   trx:870  },
+    { id:'m5', name:'Hypermart',     category:'supermarket', icon:'fa-cart-shopping',   rating:4.4, address:'Mall Kelapa Gading',    trx:1560 },
+    { id:'m6', name:"McDonald's",    category:'restaurant',  icon:'fa-burger',          rating:4.7, address:'Jl. Thamrin No. 5',     trx:2140 }
+  ],
+  transactions: [
+    { id:'TRX-2001', type:'out', title:'Kopi Kenangan',  date:'Hari ini, 10:24',    ts: Date.now()-1000*60*30,  amount:45000,  method:'QR Code'   },
+    { id:'TRX-2002', type:'in',  title:'Top Up Saldo',   date:'Hari ini, 09:15',    ts: Date.now()-1000*60*120, amount:200000, method:'Transfer Bank' },
+    { id:'TRX-2003', type:'out', title:'Indomaret',      date:'Kemarin, 19:40',     ts: Date.now()-1000*60*60*20, amount:125000, method:'Bluetooth' },
+    { id:'TRX-2004', type:'out', title:'Grab Food',      date:'2 hari lalu, 12:10', ts: Date.now()-1000*60*60*48, amount:62000, method:'QR Code'   },
+    { id:'TRX-2005', type:'in',  title:'Transfer Masuk', date:'3 hari lalu, 08:00', ts: Date.now()-1000*60*60*72, amount:350000, method:'Transfer'  },
+    { id:'TRX-2006', type:'out', title:'Starbucks',      date:'4 hari lalu, 15:25', ts: Date.now()-1000*60*60*96, amount:78000, method:'NFC'       }
+  ],
+  notifications: [
+    { id:'n1', icon:'fa-paper-plane', title:'Pembayaran Berhasil', msg:'Pembayaran Rp 45.000 di Kopi Kenangan berhasil', time:'5 menit lalu', read:false },
+    { id:'n2', icon:'fa-credit-card', title:'Top Up Berhasil',     msg:'Top up Rp 200.000 telah ditambahkan ke saldo Anda', time:'2 jam lalu', read:false },
+    { id:'n3', icon:'fa-gift',        title:'Promo Spesial',       msg:'Cashback 20% untuk transaksi di merchant partner', time:'1 hari lalu', read:true },
+    { id:'n4', icon:'fa-shield-alt',  title:'Keamanan Akun',       msg:'Login baru dari perangkat Anda', time:'2 hari lalu', read:true }
+  ]
+};
+
+/* ============ HELPERS ============ */
+const $ = id => document.getElementById(id);
+function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+function initials(name){ return name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+
+function toast(msg, type='info'){
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+  el.innerHTML = `<i class="fas ${icon}"></i><span>${msg}</span>`;
+  $('notification-container').appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 2600);
+}
+window.toast = toast;
+function openModal(id){ $(id).classList.add('open'); }
+function closeModal(id){ $(id).classList.remove('open'); }
+window.openModal = openModal;
+window.closeModal = closeModal;
+
+/* ============ NAVIGATION + HISTORY ============ */
+let currentPage = 'dashboard';
+
+function navigate(page, push = true){
+  if (page === currentPage && push) return;
+  if (push) history.pushState({page}, '', '#' + page);
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === page + '-page'));
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.toggle('active', m.dataset.page === page));
+  closeSidebar();
+  window.scrollTo({top:0, behavior:'smooth'});
+  refreshPage(page);
+}
+window.navigate = navigate;
+
+window.addEventListener('popstate', e => {
+  const page = (e.state && e.state.page) || 'dashboard';
+  navigate(page, false);
+});
+
+/* back buttons */
+document.addEventListener('click', e => {
+  const backBtn = e.target.closest('[data-back]');
+  if (backBtn){ e.preventDefault(); history.back(); }
+});
+
+/* menu clicks */
+document.querySelectorAll('.menu-item, [data-page]').forEach(el => {
+  el.addEventListener('click', e => {
+    if (el.dataset.page){ e.preventDefault(); navigate(el.dataset.page); }
+  });
+});
+
+/* mobile sidebar */
+const sidebar = $('sidebar'), overlay = $('sidebar-overlay');
+$('menu-toggle').addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('show'); });
+function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+overlay.addEventListener('click', closeSidebar);
+
+/* ============ LOGIN ============ */
+const loginScreen = $('login-screen'), appContainer = $('app-container');
+
+$('login-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const u = $('login-username').value.trim();
+  const p = $('login-password').value;
+  const btn = $('login-btn');
+  btn.classList.add('loading');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Memproses...</span>';
+  setTimeout(() => {
+    if (u === USER_CREDENTIALS.username && p === USER_CREDENTIALS.password){
+      sessionStorage.setItem('payvault_user', '1');
+      showApp();
+    } else {
+      $('login-error').classList.add('show');
+    }
+    btn.classList.remove('loading');
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>Masuk</span>';
+  }, 500);
+});
+$('toggle-pass').addEventListener('click', function(){
+  const input = $('login-password'), icon = this.querySelector('i');
+  if (input.type === 'password'){ input.type = 'text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
+  else { input.type = 'password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+});
+
+function showApp(){
+  loginScreen.classList.add('hidden');
+  appContainer.classList.remove('hidden');
+  initApp();
+}
+function logout(){
+  sessionStorage.removeItem('payvault_user');
+  appContainer.classList.add('hidden');
+  loginScreen.classList.remove('hidden');
+  $('login-username').value = USER_CREDENTIALS.username;
+  $('login-password').value = USER_CREDENTIALS.password;
+  $('login-password').type = 'password';
+  $('login-error').classList.remove('show');
+  currentPage = 'dashboard';
+  history.replaceState({page:'dashboard'}, '', '#dashboard');
+}
+$('logout-btn').addEventListener('click', logout);
+$('logout-settings').addEventListener('click', logout);
+
+/* ============ INIT ============ */
+let appReady = false;
+function initApp(){
+  if (appReady) { refreshAll(); return; }
+  appReady = true;
+
+  // greeting
+  const h = new Date().getHours();
+  const greet = h<12?'Selamat pagi!':h<15?'Selamat siang!':h<18?'Selamat sore!':'Selamat malam!';
+  $('greeting-message').textContent = greet;
+
+  // user info
+  $('user-fullname').textContent = state.user.name;
+  $('user-id').textContent = 'ID: ' + state.user.id;
+
+  // sync time
+  $('sidebar-last-sync').textContent = 'Sync: ' + new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+
+  // history initial state
+  if (!history.state) history.replaceState({page:'dashboard'}, '', '#dashboard');
+
+  refreshAll();
+  bindEvents();
+  renderQR();
+}
+
+function refreshAll(){
+  renderBalance();
+  renderRecent();
+  renderTransactions();
+  renderContacts();
+  renderMerchants();
+  renderQRInfo();
+  renderNotifications();
+  renderBadge();
+}
+function refreshPage(page){
+  if (page === 'dashboard'){ renderRecent(); renderBalance(); }
+  else if (page === 'transactions') renderTransactions();
+  else if (page === 'contacts') renderContacts();
+  else if (page === 'merchants') renderMerchants();
+  else if (page === 'qrcode'){ renderQR(); renderQRInfo(); }
+  else if (page === 'notifications') renderNotifications();
+}
+
+/* ============ BALANCE ============ */
+function renderBalance(){ $('balance-display').textContent = state.balanceHidden ? '••••••' : rupiah(state.user.balance); }
+$('toggle-balance').addEventListener('click', function(){
+  state.balanceHidden = !state.balanceHidden;
+  this.querySelector('i').className = state.balanceHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+  renderBalance();
+});
+$('refresh-balance').addEventListener('click', function(){
+  const icon = this.querySelector('i');
+  icon.style.transition = 'transform .8s'; icon.style.transform = 'rotate(360deg)';
+  setTimeout(()=>{ icon.style.transition='none'; icon.style.transform='rotate(0)'; }, 800);
+  setTimeout(()=>{ toast('Saldo disegarkan', 'success'); $('last-sync').textContent = 'Baru saja'; }, 700);
+});
+$('add-balance').addEventListener('click', () => openModal('topup-modal'));
+
+/* ============ TRANSACTIONS ============ */
+function txItem(t){
+  const isIn = t.type === 'in';
+  return `<div class="transaction-item" onclick="showTxDetail('${t.id}')">
+    <div class="transaction-icon ${t.type}"><i class="fas ${isIn?'fa-arrow-down':'fa-arrow-up'}"></i></div>
+    <div class="transaction-details">
+      <div class="transaction-title">${t.title}</div>
+      <div class="transaction-date">${t.date} • ${t.method}</div>
+    </div>
+    <div class="transaction-amount ${t.type}">${isIn?'+':'-'}${rupiah(t.amount)}</div>
+  </div>`;
+}
+function renderRecent(){
+  const el = $('recent-transactions');
+  const recent = state.transactions.slice(0, 5);
+  el.innerHTML = recent.length ? recent.map(txItem).join('')
+    : `<div class="empty-state"><i class="fas fa-exchange-alt"></i><h4>Tidak ada transaksi</h4><p>Belum ada transaksi</p></div>`;
+}
+function getFilteredTx(){
+  const f = $('transaction-filter').value, now = Date.now();
+  return state.transactions.filter(t => {
+    if (f==='sent') return t.type==='out';
+    if (f==='received') return t.type==='in';
+    if (f==='today') return now-t.ts < 86400000;
+    if (f==='week') return now-t.ts < 86400000*7;
+    if (f==='month') return now-t.ts < 86400000*30;
+    return true;
+  });
+}
+function renderTransactions(){
+  const list = getFilteredTx();
+  $('full-transactions-list').innerHTML = list.length ? list.map(txItem).join('')
+    : `<div class="empty-state"><i class="fas fa-exchange-alt"></i><h4>Tidak ada transaksi</h4><p>Tidak ada transaksi pada filter ini</p></div>`;
+  const exp = list.filter(t=>t.type==='out').reduce((s,t)=>s+t.amount,0);
+  const inc = list.filter(t=>t.type==='in').reduce((s,t)=>s+t.amount,0);
+  $('total-transactions').textContent = list.length;
+  $('total-expense').textContent = rupiah(exp);
+  $('total-income').textContent = rupiah(inc);
+}
+$('transaction-filter').addEventListener('change', renderTransactions);
+$('export-transactions').addEventListener('click', () => toast('Transaksi berhasil diexport (demo)', 'success'));
+
+function showTxDetail(id){
+  const t = state.transactions.find(x => x.id === id);
+  if (!t) return;
+  $('td-id').textContent = t.id;
+  $('td-type').textContent = t.type === 'in' ? 'Pemasukan' : 'Pengeluaran';
+  $('td-title').textContent = t.title;
+  $('td-method').textContent = t.method;
+  $('td-date').textContent = t.date;
+  const amt = $('td-amount');
+  amt.textContent = (t.type==='in'?'+':'-') + rupiah(t.amount);
+  amt.style.color = t.type==='in' ? 'var(--success)' : 'var(--danger)';
+  openModal('transaction-detail-modal');
+}
+window.showTxDetail = showTxDetail;
+
+/* ============ CONTACTS ============ */
+function renderContacts(){
+  const kw = ($('contact-search-input').value || '').toLowerCase();
+  const list = state.contacts.filter(c =>
+    c.name.toLowerCase().includes(kw) || c.phone.includes(kw) || c.email.toLowerCase().includes(kw)
+  );
+  const el = $('contacts-list');
+  if (!list.length){
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><h4>Tidak ada kontak</h4><p>Tambahkan kontak untuk mempermudah transfer</p></div>`;
+    return;
+  }
+  el.innerHTML = list.map(c => `
+    <div class="contact-card" onclick="showContactDetail('${c.id}')">
+      <div class="contact-avatar">${initials(c.name)}</div>
+      <div class="contact-info">
+        <h4>${c.name}</h4>
+        <p>${c.phone}${c.email?' • '+c.email:''}</p>
+      </div>
+      <button class="btn-icon" onclick="event.stopPropagation();transferTo('${c.name.replace(/'/g,"\\'")}')"><i class="fas fa-paper-plane"></i></button>
+    </div>`).join('');
+}
+$('contact-search-input').addEventListener('input', renderContacts);
+$('add-contact').addEventListener('click', () => openModal('add-contact-modal'));
+$('import-contacts').addEventListener('click', () => toast('Import kontak (demo)', 'success'));
+
+$('addContactForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('contact-name').value.trim();
+  const phone = $('contact-phone').value.trim();
+  if (!name || !phone) return;
+  state.contacts.push({
+    id: 'c' + Date.now(),
+    name, phone,
+    email: $('contact-email').value.trim() || '-',
+    payvault: $('contact-payvault-id').value.trim() || 'PAYV-USER-' + Math.floor(Math.random()*900+100)
+  });
+  renderContacts();
+  closeModal('add-contact-modal');
+  e.target.reset();
+  toast('Kontak berhasil ditambahkan', 'success');
+});
+
+let detailContactId = null;
+function showContactDetail(id){
+  const c = state.contacts.find(x => x.id === id);
+  if (!c) return;
+  detailContactId = id;
+  $('cd-avatar').textContent = initials(c.name);
+  $('cd-name').textContent = c.name;
+  $('cd-payvault').textContent = c.payvault;
+  $('cd-phone').textContent = c.phone;
+  $('cd-email').textContent = c.email;
+  openModal('contact-detail-modal');
+}
+window.showContactDetail = showContactDetail;
+
+$('cd-delete').addEventListener('click', () => {
+  if (!detailContactId) return;
+  if (!confirm('Hapus kontak ini?')) return;
+  state.contacts = state.contacts.filter(c => c.id !== detailContactId);
+  detailContactId = null;
+  closeModal('contact-detail-modal');
+  renderContacts();
+  toast('Kontak dihapus', 'success');
+});
+$('cd-transfer').addEventListener('click', () => {
+  if (!detailContactId) return;
+  const c = state.contacts.find(x => x.id === detailContactId);
+  closeModal('contact-detail-modal');
+  setTimeout(() => transferTo(c.name), 200);
+});
+
+function transferTo(name){
+  openModal('transfer-modal');
+  $('transfer-to').value = name;
+}
+window.transferTo = transferTo;
+
+/* ============ MERCHANTS ============ */
+function renderMerchants(){
+  const f = $('merchant-filter').value;
+  const list = state.merchants.filter(m => f === 'all' || m.category === f);
+  const el = $('merchants-list');
+  if (!list.length){
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-store"></i><h4>Tidak ada merchant</h4><p>Tidak ada merchant pada kategori ini</p></div>`;
+    return;
+  }
+  el.innerHTML = list.map(m => `
+    <div class="merchant-card" onclick="showMerchantDetail('${m.id}')">
+      <div class="merchant-logo"><i class="fas ${m.icon}"></i></div>
+      <div class="merchant-info"><h4>${m.name}</h4><p>${m.address}</p></div>
+      <div style="text-align:right">
+        <div class="merchant-rating"><i class="fas fa-star"></i> ${m.rating}</div>
+        <div style="font-size:.72rem;color:var(--gray);margin-top:.2rem">${m.category}</div>
+      </div>
+    </div>`).join('');
+}
+$('merchant-filter').addEventListener('change', renderMerchants);
+
+let detailMerchantId = null;
+function showMerchantDetail(id){
+  const m = state.merchants.find(x => x.id === id);
+  if (!m) return;
+  detailMerchantId = id;
+  $('md-logo').innerHTML = `<i class="fas ${m.icon}"></i>`;
+  $('md-name').textContent = m.name;
+  $('md-address').textContent = m.address;
+  $('md-rating').innerHTML = `<i class="fas fa-star"></i> ${m.rating}`;
+  $('md-category').textContent = m.category.charAt(0).toUpperCase() + m.category.slice(1);
+  $('md-trx').textContent = m.trx.toLocaleString('id-ID') + ' transaksi';
+  openModal('merchant-detail-modal');
+}
+window.showMerchantDetail = showMerchantDetail;
+
+$('md-close-btn').addEventListener('click', () => closeModal('merchant-detail-modal'));
+$('md-pay').addEventListener('click', () => {
+  if (!detailMerchantId) return;
+  const m = state.merchants.find(x => x.id === detailMerchantId);
+  closeModal('merchant-detail-modal');
+  navigate('payments');
+  setTimeout(() => { $('payment-merchant').value = m.name; $('payment-amount').focus(); }, 250);
+});
+
+/* ============ QR ============ */
+function renderQR(){
+  const size = 21, container = $('qr-code');
+  let seed = 0;
+  for (const ch of state.user.id) seed = (seed * 31 + ch.charCodeAt(0)) % 100000;
+  const rand = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+  let html = '<div class="qr-grid">';
+  for (let y = 0; y < size; y++){
+    for (let x = 0; x < size; x++){
+      const inFinder = (x<7&&y<7) || (x>=size-7&&y<7) || (x<7&&y>=size-7);
+      let on = false;
+      if (inFinder){
+        const lx = x<7?x:x-(size-7), ly = y<7?y:y-(size-7);
+        if (lx===0||lx===6||ly===0||ly===6) on = true;
+        else if (lx>=2&&lx<=4&&ly>=2&&ly<=4) on = true;
+      } else on = rand() > 0.5;
+      html += `<span style="background:${on?'#1e293b':'#ffffff'}"></span>`;
+    }
+  }
+  html += '</div><div class="qr-logo"><i class="fas fa-vault"></i></div>';
+  container.innerHTML = html;
+}
+function renderQRInfo(){
+  $('qr-user-id').textContent = state.user.id;
+  $('qr-user-name').textContent = state.user.name;
+  $('qr-user-balance').textContent = rupiah(state.user.balance);
+}
+$('share-qr').addEventListener('click', () => {
+  if (navigator.share){
+    navigator.share({ title:'PayVault QR', text:`${state.user.name} — ${state.user.id}` }).catch(()=>{});
+  } else toast('QR Code berhasil dibagikan (demo)', 'success');
+});
+
+/* ============ NOTIFICATIONS ============ */
+function renderNotifications(){
+  const el = $('notifications-list');
+  el.innerHTML = state.notifications.map(n => `
+    <div class="notif-item ${n.read ? '' : 'unread'}" onclick="markRead('${n.id}')">
+      <div class="notif-icon"><i class="fas ${n.icon}"></i></div>
+      <div class="notif-body">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-msg">${n.msg}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+      ${n.read ? '' : '<div class="notif-dot"></div>'}
+    </div>`).join('');
+  renderBadge();
+}
+function renderBadge(){
+  const unread = state.notifications.filter(n => !n.read).length;
+  const badge = $('notification-badge');
+  badge.textContent = unread;
+  badge.classList.toggle('empty', unread === 0);
+}
+window.markRead = function(id){
+  const n = state.notifications.find(x => x.id === id);
+  if (n) n.read = true;
+  renderNotifications();
+};
+$('mark-all-read').addEventListener('click', () => {
+  state.notifications.forEach(n => n.read = true);
+  renderNotifications();
+  toast('Semua notifikasi ditandai dibaca', 'success');
+});
+$('notification-bell').addEventListener('click', () => {
+  renderNotifications();
+  openModal('notifications-modal');
+});
+
+/* ============ MODAL CLOSE GLOBAL ============ */
+document.querySelectorAll('.modal-close').forEach(btn => {
+  btn.addEventListener('click', () => btn.closest('.modal').classList.remove('open'));
+});
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+/* ============ PAYMENT ============ */
+let pendingPayment = null;
+$('paymentForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const amount = parseInt($('payment-amount').value.replace(/\D/g,'')) || 0;
+  const merchant = $('payment-merchant').value.trim();
+  const note = $('payment-note').value.trim();
+  const method = document.querySelector('.payment-tab.active').dataset.method;
+  if (amount <= 0){ toast('Jumlah tidak valid', 'error'); return; }
+  if (!merchant){ toast('Merchant wajib diisi', 'error'); return; }
+  if (amount > state.user.balance){ toast('Saldo tidak mencukupi', 'error'); return; }
+  pendingPayment = { amount, merchant, note, method };
+  $('modal-amount').textContent = rupiah(amount);
+  $('modal-merchant').textContent = merchant;
+  $('modal-method').textContent = method.charAt(0).toUpperCase() + method.slice(1);
+  $('modal-note').textContent = note || '-';
+  openModal('payment-modal');
+});
+$('cancel-payment').addEventListener('click', () => closeModal('payment-modal'));
+$('confirm-payment').addEventListener('click', () => {
+  if (!pendingPayment) return;
+  const { amount, merchant, method } = pendingPayment;
+  state.user.balance -= amount;
+  state.transactions.unshift({
+    id:'TRX-' + (2000 + Math.floor(Math.random()*9000)),
+    type:'out', title:merchant, date:'Baru saja', ts:Date.now(),
+    amount, method: method.charAt(0).toUpperCase()+method.slice(1)
+  });
+  pendingPayment = null;
+  closeModal('payment-modal');
+  $('paymentForm').reset();
+  refreshAll();
+  toast('Pembayaran berhasil!', 'success');
+});
+document.querySelectorAll('.payment-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.payment-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const m = tab.dataset.method;
+    document.querySelectorAll('.payment-method-content').forEach(c => c.classList.remove('active'));
+    const target = $(m + '-payment');
+    if (target) target.classList.add('active');
+  });
+});
+$('activate-camera').addEventListener('click', () => toast('Kamera diaktifkan (demo)', 'success'));
+$('scan-qr-btn').addEventListener('click', () => { navigate('payments'); document.querySelector('.payment-tab[data-method="qr"]').click(); });
+$('quick-scan').addEventListener('click', () => { navigate('payments'); document.querySelector('.payment-tab[data-method="qr"]').click(); });
+$('quick-pay').addEventListener('click', () => navigate('payments'));
+
+/* ============ TRANSFER ============ */
+$('transferForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const to = $('transfer-to').value.trim();
+  const amount = parseInt($('transfer-amount').value.replace(/\D/g,'')) || 0;
+  if (!to){ toast('Penerima wajib diisi', 'error'); return; }
+  if (amount <= 0){ toast('Jumlah tidak valid', 'error'); return; }
+  if (amount > state.user.balance){ toast('Saldo tidak mencukupi', 'error'); return; }
+  state.user.balance -= amount;
+  state.transactions.unshift({
+    id:'TRX-' + (2000 + Math.floor(Math.random()*9000)),
+    type:'out', title:'Transfer ke ' + to, date:'Baru saja', ts:Date.now(),
+    amount, method:'Transfer'
+  });
+  closeModal('transfer-modal');
+  e.target.reset();
+  refreshAll();
+  toast('Transfer berhasil!', 'success');
+});
+
+/* ============ TOPUP ============ */
+document.querySelectorAll('#topup-modal .payment-method').forEach(pm => {
+  pm.addEventListener('click', () => {
+    document.querySelectorAll('#topup-modal .payment-method').forEach(p => p.classList.remove('active'));
+    pm.classList.add('active');
+    $('topupForm').style.display = 'block';
+  });
+});
+$('topup-amount').addEventListener('input', function(){
+  const val = parseInt(this.value.replace(/\D/g,'')) || 0;
+  $('summary-amount').textContent = rupiah(val);
+  $('summary-total').textContent = rupiah(val + 2500);
+});
+$('topupForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const amount = parseInt($('topup-amount').value.replace(/\D/g,'')) || 0;
+  if (amount < 10000){ toast('Minimal top up Rp 10.000', 'error'); return; }
+  state.user.balance += amount;
+  state.transactions.unshift({
+    id:'TRX-' + (2000 + Math.floor(Math.random()*9000)),
+    type:'in', title:'Top Up Saldo', date:'Baru saja', ts:Date.now(),
+    amount, method:'Top Up'
+  });
+  closeModal('topup-modal');
+  $('topupForm').reset();
+  $('topupForm').style.display = 'none';
+  document.querySelectorAll('#topup-modal .payment-method').forEach(p => p.classList.remove('active'));
+  $('summary-amount').textContent = 'Rp 0';
+  $('summary-total').textContent = 'Rp 0';
+  refreshAll();
+  toast('Top up berhasil!', 'success');
+});
+
+/* ============ QUICK ACTIONS ============ */
+document.querySelectorAll('.action-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const a = card.dataset.action;
+    if (a === 'pay') navigate('payments');
+    else if (a === 'receive') navigate('qrcode');
+    else if (a === 'transfer') openModal('transfer-modal');
+    else if (a === 'topup') openModal('topup-modal');
+    else if (a === 'history') navigate('transactions');
+    else if (a === 'contacts') navigate('contacts');
+  });
+});
+
+/* ============ SETTINGS ============ */
+const settingModalMap = {
+  profile: 'profile-modal',
+  security: 'security-modal',
+  privacy: 'privacy-modal',
+  limits: 'limits-modal',
+  'payment-methods': 'payment-methods-modal',
+  notifications: 'notification-settings-modal',
+  help: 'help-modal',
+  terms: 'terms-modal'
+};
+
+document.querySelectorAll('.btn-setting').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const modalId = settingModalMap[btn.dataset.setting];
+    if (!modalId){ toast('Fitur segera hadir', 'info'); return; }
+    // populate profile
+    if (modalId === 'profile-modal'){
+      $('pm-avatar').textContent = initials(state.user.name);
+      $('pm-name').textContent = state.user.name;
+      $('pm-id').textContent = state.user.id;
+      $('pf-name').value = state.user.name;
+      $('pf-email').value = state.user.email;
+      $('pf-phone').value = state.user.phone || '';
+    }
+    openModal(modalId);
+  });
+});
+
+/* profile form */
+$('profileForm').addEventListener('submit', e => {
+  e.preventDefault();
+  state.user.name = $('pf-name').value.trim();
+  state.user.email = $('pf-email').value.trim();
+  state.user.phone = $('pf-phone').value.trim();
+  $('user-fullname').textContent = state.user.name;
+  $('pm-avatar').textContent = initials(state.user.name);
+  $('pm-name').textContent = state.user.name;
+  renderQRInfo();
+  closeModal('profile-modal');
+  toast('Profil berhasil diperbarui', 'success');
+});
+
+/* security form */
+$('securityForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const oldP = $('sec-old').value, newP = $('sec-new').value, conf = $('sec-confirm').value;
+  if (oldP !== USER_CREDENTIALS.password){ toast('Password lama salah', 'error'); return; }
+  if (newP !== conf){ toast('Konfirmasi password tidak cocok', 'error'); return; }
+  USER_CREDENTIALS.password = newP;
+  $('securityForm').reset();
+  closeModal('security-modal');
+  toast('Password berhasil diubah', 'success');
+});
+$('twofa-toggle').addEventListener('change', function(){
+  toast('2FA ' + (this.checked?'diaktifkan':'dinonaktifkan'), this.checked?'success':'info');
+});
+
+/* limits form */
+$('limitsForm').addEventListener('submit', e => {
+  e.preventDefault();
+  closeModal('limits-modal');
+  toast('Limit transaksi diperbarui', 'success');
+});
+
+/* FAQ toggle */
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => q.parentElement.classList.toggle('open'));
+});
+
+/* other system settings */
+$('auto-sync').addEventListener('change', function(){ toast('Auto Sync ' + (this.checked?'diaktifkan':'dinonaktifkan')); });
+$('dark-mode').addEventListener('change', function(){ toast('Mode gelap ' + (this.checked?'diaktifkan':'dinonaktifkan') + ' (demo)'); });
+$('language-select').addEventListener('change', function(){ toast('Bahasa: ' + this.options[this.selectedIndex].text); });
+$('clear-data').addEventListener('click', () => {
+  if (confirm('Yakin ingin menghapus semua data lokal?')) toast('Data lokal dihapus (demo)', 'success');
+});
+
+$('emergency-toggle').addEventListener('change', function(){
+  toast('Emergency Mode ' + (this.checked?'diaktifkan':'dinonaktifkan'), this.checked?'success':'info');
+});
+
+/* ============ BOOT ============ */
+document.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem('payvault_user') === '1'){
+    loginScreen.classList.add('hidden');
+    appContainer.classList.remove('hidden');
+    initApp();
+  }
+});
+</script>
+</body>
+</html>
